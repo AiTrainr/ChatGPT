@@ -8,7 +8,7 @@ from datetime import datetime
 INVENTORY_FILE = 'inventory.csv'
 REVISION_LOG_FILE = 'revision_log.txt'
 
-class InventoryApp(tkinter.Tk):
+class InventoryApp(tk.Tk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
