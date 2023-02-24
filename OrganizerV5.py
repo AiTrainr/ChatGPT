@@ -164,5 +164,6 @@ class InventoryApp:
         # log the revision
         self.log_revision(f"Edited item: {item_name} -> {new_name}, {selected_item['quantity']} -> {new_quantity}, {selected_item['description']} -> {new_description}")
 if __name__ == '__main__':
-    app = InventoryApp()
+    root = tk.Tk()  # create a new instance of the root window
+    app = InventoryApp(root)  # pass the root as the master argument
     app.mainloop()
