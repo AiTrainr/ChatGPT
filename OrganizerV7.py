@@ -1,113 +1,111 @@
 import tkinter as tk
 import csv
 
-inventory_file_path = 'inventory.csv'
+# Define the inventory file name
+INVENTORY_FILE = "inventory.csv"
 
-root = tk.Tk()
+# Define the inventory headers
+INVENTORY_HEADERS = ["Location", "Name", "Qty"]
+
+# Define the default inventory data
+DEFAULT_INVENTORY = [
+    ["Shelf 1", "Arduino Uno", 10],
+    ["Shelf 2", "Breadboard", 20],
+    ["Shelf 3", "Jumper wires", 100],
+    ["Shelf 4", "Resistors", 50],
+    ["Shelf 5", "LEDs", 30]
+]
+
+# Create a dictionary to hold the inventory data
+inventory_data = {}
 
 def read_inventory():
-    """Reads the inventory from the CSV file."""
+    """Read the inventory data from the CSV file"""
     try:
-        with open(inventory_file_path, 'r') as file:
-            reader = csv.reader(file)
-            return [row for row in reader]
+        with open(INVENTORY_FILE, newline="") as inventory_file:
+            inventory_reader = csv.reader(inventory_file)
+            # Skip the header row
+            next(inventory_reader)
+            # Read each row and store it in the inventory dictionary
+            for row in inventory_reader:
+                location, name, qty = row
+                inventory_data[name] = {"Location": location, "Qty": int(qty)}
     except FileNotFoundError:
-        return []
+        # If the file is not found, use the default inventory data
+        for row in DEFAULT_INVENTORY:
+            location, name, qty = row
+            inventory_data[name] = {"Location": location, "Qty": qty}
 
 def write_inventory():
-    """Writes the inventory to the CSV file."""
-    with open(inventory_file_path, 'w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(['Location', 'Name', 'Qty'])
-        writer.writerows(inventory)
+    """Write the inventory data to the CSV file"""
+    with open(INVENTORY_FILE, "w", newline="") as inventory_file:
+        inventory_writer = csv.writer(inventory_file)
+        inventory_writer.writerow(INVENTORY_HEADERS)
+        for name, data in inventory_data.items():
+            location = data["Location"]
+            qty = data["Qty"]
+            inventory_writer.writerow([location, name, qty])
 
-def update_inventory_table():
-    """Updates the Inventory tab with the current inventory."""
-    # Clear the current contents of the inventory table
-    for widget in inventory_frame.winfo_children():
-        widget.destroy()
+def input_popup(root, inventory):
+    """Display the input popup window"""
+    def change_qty():
+        """Update the quantity for the selected component"""
+        name = name_var.get()
+        location = location_var.get()
+        qty_change = int(qty_var.get())
+        # If the component already exists in the inventory, update its quantity
+        if name in inventory_data:
+            inventory_data[name]["Qty"] += qty_change
+            inventory_data[name]["Location"] = location
+        # Otherwise, add the component to the inventory
+        else:
+            inventory_data[name] = {"Location": location, "Qty": qty_change}
+        write_inventory()
+        update_inventory_table(inventory)
 
-    # Create the header row of the inventory table
-    location_label = tk.Label(inventory_frame, text='Location')
-    location_label.grid(row=0, column=0, padx=5, pady=5)
-    name_label = tk.Label(inventory_frame, text='Name')
-    name_label.grid(row=0, column=1, padx=5, pady=5)
-    qty_label = tk.Label(inventory_frame, text='Qty')
-    qty_label.grid(row=0, column=2, padx=5, pady=5)
+    input_window = tk.Toplevel(root)
 
-    # Add each component in the inventory to the table
-    for i, row in enumerate(inventory):
-        location = tk.Label(inventory_frame, text=row[0])
-        location.grid(row=i+1, column=0, padx=5, pady=5)
-        name = tk.Label(inventory_frame, text=row[1])
-        name.grid(row=i+1, column=1, padx=5, pady=5)
-        qty = tk.Label(inventory_frame, text=row[2])
-        qty.grid(row=i+1, column=2, padx=5, pady=5)
+    name_label = tk.Label(input_window, text="Name:")
+    name_var = tk.StringVar()
+    name_entry = tk.Entry(input_window, textvariable=name_var)
 
-def add_or_adjust_qty():
-    """Displays the Input popup to add or adjust a component quantity."""
-    # Create the Input popup
-    input_popup = tk.Toplevel(root)
-    input_popup.title('Add or Adjust Qty')
+    location_label = tk.Label(input_window, text="Location:")
+    location_var = tk.StringVar()
+    location_entry = tk.Entry(input_window, textvariable=location_var)
 
-    # Create the name label and entry field
-    name_label = tk.Label(input_popup, text='Name:')
+    qty_label = tk.Label(input_window, text="Qty:")
+    qty_var = tk.StringVar()
+    qty_entry = tk.Entry(input_window, textvariable=qty_var)
+
+    change_button = tk.Button(input_window, text="Change", command=change_qty)
+
     name_label.grid(row=0, column=0, padx=5, pady=5)
-    name_entry = tk.Entry(input_popup)
     name_entry.grid(row=0, column=1, padx=5, pady=5)
 
-    # Create the location label and entry field
-    location_label = tk.Label(input_popup, text='Location:')
     location_label.grid(row=1, column=0, padx=5, pady=5)
-    location_entry = tk.Entry(input_popup)
     location_entry.grid(row=1, column=1, padx=5, pady=5)
 
-    # Create the qty label and entry field
-    qty_label = tk.Label(input_popup, text='Qty:')
     qty_label.grid(row=2, column=0, padx=5, pady=5)
-    qty_entry = tk.Entry(input_popup)
+    qty_entry.grid(row=2, column=1, padx=5, pady=5)
+    
+    name_label = tk.Label(input_frame, text="Name:")
+    name_label.grid(row=0, column=0, padx=5, pady=5)
+
+    name_entry = tk.Entry(input_frame)
+    name_entry.grid(row=0, column=1, padx=5, pady=5)
+
+    location_label = tk.Label(input_frame, text="Location:")
+    location_label.grid(row=1, column=0, padx=5, pady=5)
+
+    location_entry = tk.Entry(input_frame)
+    location_entry.grid(row=1, column=1, padx=5, pady=5)
+
+    qty_label = tk.Label(input_frame, text="Change in Qty:")
+    qty_label.grid(row=2, column=0, padx=5, pady=5)
+
+    qty_entry = tk.Entry(input_frame)
     qty_entry.grid(row=2, column=1, padx=5, pady=5)
 
-    def submit_qty():
-        """Submits the entered quantity."""
-        name = name_entry.get()
-        location = location_entry.get()
-        qty = int(qty_entry.get())
+    change_button = tk.Button(input_frame, text="Change", command=change_qty)
+    change_button.grid(row=3, column=1, padx=5, pady=5)
 
-        # Check if the component is already in the inventory
-        component_exists = False
-        for i, row in enumerate(inventory):
-            if row[1] == name and row[0] == location:
-                inventory[i][2] = str(int(inventory[i][2]) + qty)
-                component_exists = True
-
-        # If the component is not in the inventory, add it
-        if not component_exists:
-            inventory.append([location, name, str(qty)])
-
-        # Update the inventory table and write the inventory to the file
-        update_inventory_table()
-        write_inventory()
-
-        # Close the Input popup
-        input_popup.destroy()
-
-    # Create the Submit button
-    submit_button = tk.Button(input_popup, text='Change', command=submit_qty)
-    submit_button.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
-
-# Create the inventory tab
-inventory_frame = tk
-# Create the inventory tab
-inventory_frame = tk.Frame(root)
-
-# Add the inventory table
-update_inventory_table()
-inventory_frame.pack(fill='both', expand=True, padx=10, pady=10)
-
-# Add the "Add or Adjust Qty" button
-add_or_adjust_button = tk.Button(root, text='Add or Adjust Qty', command=add_or_adjust_qty)
-add_or_adjust_button.pack(side='bottom', padx=10, pady=10)
-
-# Create the main loop to run the tkinter application
-root.mainloop()
