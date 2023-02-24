@@ -139,9 +139,9 @@ class InventoryApp:
                 break
         else:
             # If the component does not exist, add a
-    # write revision to file
-    with open(REVISION_LOG_FILE, 'a') as file:
-        file.write(f"{name},{new_qty},{change},{current_time}\n")
+            # write revision to file
+            with open(REVISION_LOG_FILE, 'a') as file:
+                file.write(f"{name},{new_qty},{change},{current_time}\n")
 
 def main():
     # create the inventory window
