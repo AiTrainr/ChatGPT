@@ -19,11 +19,9 @@ class InventoryApp:
 
     def __init__(self, master):
         self.master = master
-        self.master.title('Inventory App')
-        self.master.geometry('800x500')
-        
-        self.inventory_frame = InventoryFrame(self.master) # create an instance of the InventoryFrame widget
+        self.master.title('Inventory Application')
         self.create_menu()
+        self.inventory_frame = InventoryFrame(self.master) # create an instance of the InventoryFrame widget
 
     def create_menu(self):
         """Create menu bar for application."""
@@ -163,6 +161,22 @@ class InventoryApp:
 
         # log the revision
         self.log_revision(f"Edited item: {item_name} -> {new_name}, {selected_item['quantity']} -> {new_quantity}, {selected_item['description']} -> {new_description}")
+
+class InventoryFrame(tk.Frame):
+    def __init__(self, master):
+        super().__init__(master)
+        self.master = master
+        self.create_widgets()
+
+    def create_widgets(self):
+        self.add_item_button = tk.Button(self, text='Add Item', command=self.show_add_item_popup)
+        self.add_item_button.pack(pady=10, padx=10)
+
+    def show_add_item_popup(self):
+        add_item_popup = tk.Toplevel(self.master)
+        add_item_popup.title('Add Item')
+        # Add code to create the popup
+
 if __name__ == '__main__':
     root = tk.Tk()  # create a new instance of the root window
     app = InventoryApp(root)  # pass the root as the master argument
