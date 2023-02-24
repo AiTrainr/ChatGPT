@@ -109,3 +109,4 @@ def input_popup(root, inventory):
     change_button = tk.Button(input_frame, text="Change", command=change_qty)
     change_button.grid(row=3, column=1, padx=5, pady=5)
 
+root.mainloop()
