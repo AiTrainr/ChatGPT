@@ -19,6 +19,8 @@ DEFAULT_INVENTORY = [
 # Create a dictionary to hold the inventory data
 inventory_data = {}
 
+root = tk.Tk()
+
 def read_inventory():
     """Read the inventory data from the CSV file"""
     try:
@@ -108,5 +110,6 @@ def input_popup(root, inventory):
 
     change_button = tk.Button(input_frame, text="Change", command=change_qty)
     change_button.grid(row=3, column=1, padx=5, pady=5)
+
 
 root.mainloop()
