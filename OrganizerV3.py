@@ -151,6 +151,12 @@ def main():
     input_window = create_input_window(inventory_window)
 
     # create the revision log window
+    # This function creates a new window to display a table of all revisions to the inventory levels.
+    # It reads the revision log from file and creates a table using tkinter's Treeview widget.
+    # The table has four columns: Component Name, New Quantity, Quantity Change, and Timestamp.
+    # The table is sorted in descending order by timestamp so that the most recent changes are displayed first.
+    # The function also creates a scrollbar to allow scrolling through the table if there are many revisions.
+    # The window is displayed using tkinter's mainloop() function.
     revision_window = create_revision_window()
 
     # read the inventory from file
