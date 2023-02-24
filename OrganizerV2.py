@@ -2,48 +2,28 @@ import tkinter as tk
 from tkinter import ttk
 import csv
 
-# Function to load inventory data from file
-def load_inventory():
-    inventory = []
-    with open('inventory.csv', 'r') as f:
-        reader = csv.reader(f)
-        for row in reader:
-            inventory.append(row)
-    return inventory
+# Global variables
+inventory_file = 'inventory.csv'
+inventory = []
+changes_made = False  # Added this variable to track if changes were made to the inventory data
 
-# Function to save inventory data to file
+# Load the inventory data from file
+def load_inventory():
+    global inventory
+    try:
+        with open(inventory_file, 'r') as f:
+            reader = csv.reader(f)
+            inventory = list(reader)
+    except FileNotFoundError:
+        inventory = []
+
+# Save the inventory data to file
 def save_inventory(inventory):
-    with open('inventory.csv', 'w', newline='') as f:
+    with open(inventory_file, 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerows(inventory)
 
-# Function to update the inventory table
-def update_inventory_table():
-    # Clear any existing rows
-    for row in inventory_table.get_children():
-        inventory_table.delete(row)
-    # Add rows from inventory data
-    for item in inventory:
-        inventory_table.insert('', 'end', values=item)
-
-# Function to handle the "Add or Adjust Qty" button click
-def add_or_adjust_qty():
-    # Create the Input popup window
-    input_window = tk.Toplevel(root)
-    input_window.title("Input")
-    # Add widgets to the Input window
-    name_label = tk.Label(input_window, text="Component Name:")
-    name_label.pack()
-    name_entry = tk.Entry(input_window)
-    name_entry.pack()
-    qty_label = tk.Label(input_window, text="Change in Quantity:")
-    qty_label.pack()
-    qty_entry = tk.Entry(input_window)
-    qty_entry.pack()
-    change_button = tk.Button(input_window, text="Change", command=lambda: change_qty(name_entry.get(), qty_entry.get()))
-    change_button.pack()
-
-# Function to handle the "Change" button click
+# Add or adjust the quantity for a component
 def change_qty(name, qty):
     global inventory
     # Find the row for the component in the inventory data
@@ -58,35 +38,85 @@ def change_qty(name, qty):
         index = len(inventory) - 1
     # Update the quantity for the component
     inventory[index][2] = str(int(inventory[index][2]) + int(qty))
-    # Update the inventory table and save the inventory data to file
+    # Update the inventory table and save the inventory data to file if changes were made
     update_inventory_table()
-    save_inventory(inventory)
+    global changes_made
+    changes_made = True
 
-# Load inventory data from file
-inventory = load_inventory()
+# Update the inventory table
+def update_inventory_table():
+    # Clear any existing rows
+    for row in inventory_table.get_children():
+        inventory_table.delete(row)
+    # Add rows from inventory data
+    for item in inventory:
+        inventory_table.insert('', 'end', values=item)
+    # Save the inventory data to file if changes were made
+    global changes_made
+    if changes_made:
+        save_inventory(inventory)
+        changes_made = False
 
-# Create the main window
+# Handle the "Add or Adjust Qty" button click
+def input_qty():
+    # Define the Input popup window
+    input_popup = tk.Toplevel(root)
+    input_popup.title('Add or Adjust Qty')
+    input_popup.geometry('300x100')
+
+    # Define the name and qty entry fields and labels
+    name_label = ttk.Label(input_popup, text='Component Name')
+    name_label.grid(row=0, column=0)
+    name_entry = ttk.Entry(input_popup)
+    name_entry.grid(row=0, column=1)
+    qty_label = ttk.Label(input_popup, text='Qty (+ or -)')
+    qty_label.grid(row=1, column=0)
+    qty_entry = ttk.Entry(input_popup)
+    qty_entry.grid(row=1, column=1)
+
+    # Define the Change button and its command
+    def change_qty_command():
+        name = name_entry.get()
+        qty = qty_entry.get()
+        if name != '' and qty != '':
+            change_qty(name, qty)
+            input_popup.destroy()
+
+    change_button = ttk.Button(input_popup, text='Change
+    change_button.config(command=change_qty_command)
+    change_button.grid(row=2, column=0, columnspan=2)
+    name_entry.focus()  # Focus the cursor on the name entry field
+
+# Define the main window
 root = tk.Tk()
-root.title("Inventory Management")
+root.title('Inventory Organizer')
 
-# Create the tabs
+# Define the notebook widget and its tabs
 notebook = ttk.Notebook(root)
+notebook.pack(fill='both', expand=True)
+
+# Define the Inventory tab and its table
 inventory_tab = ttk.Frame(notebook)
-notebook.add(inventory_tab, text="Inventory")
+inventory_tab.pack(fill='both', expand=True)
+notebook.add(inventory_tab, text='Inventory')
 
-# Create the inventory table
-inventory_table = ttk.Treeview(inventory_tab, columns=('location', 'name', 'qty'), show='headings')
-inventory_table.heading('location', text='Location')
-inventory_table.heading('name', text='Name')
-inventory_table.heading('qty', text='Qty')
-inventory_table.pack(side='left')
+inventory_table = ttk.Treeview(inventory_tab, columns=('Location', 'Name', 'Qty'))
+inventory_table.heading('#0', text='')
+inventory_table.heading('Location', text='Location')
+inventory_table.heading('Name', text='Name')
+inventory_table.heading('Qty', text='Qty')
+inventory_table.column('#0', width=0, stretch='no')
+inventory_table.column('Location', anchor='center', width=100)
+inventory_table.column('Name', anchor='w', width=200)
+inventory_table.column('Qty', anchor='center', width=100)
+inventory_table.pack(fill='both', expand=True)
 
-# Add the "Add or Adjust Qty" button to the main window
-add_or_adjust_button = tk.Button(root, text="Add or Adjust Qty", command=add_or_adjust_qty)
-add_or_adjust_button.pack(side='bottom')
+# Define the Add or Adjust Qty button
+add_qty_button = ttk.Button(root, text='Add or Adjust Qty', command=input_qty)
+add_qty_button.pack(side='bottom')
 
-# Populate the inventory table with data
+# Load the inventory data and update the inventory table
+load_inventory()
 update_inventory_table()
 
-# Start the main loop
 root.mainloop()
