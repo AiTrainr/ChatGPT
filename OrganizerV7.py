@@ -3,6 +3,8 @@ import csv
 
 inventory_file_path = 'inventory.csv'
 
+root = tk.Tk()
+
 def read_inventory():
     """Reads the inventory from the CSV file."""
     try:
