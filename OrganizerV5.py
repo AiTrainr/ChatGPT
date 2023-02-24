@@ -18,12 +18,12 @@ class InventoryApp:
     """Main application window for the inventory app."""
 
     def __init__(self, master):
-        """Initialize main application window."""
         self.master = master
-        self.master.title('Inventory')
+        self.master.title('Inventory App')
+        self.master.geometry('800x500')
+        
+        self.inventory_frame = InventoryFrame(self.master) # create an instance of the InventoryFrame widget
         self.create_menu()
-        self.create_widgets()
-        self.load_inventory()
 
     def create_menu(self):
         """Create menu bar for application."""
